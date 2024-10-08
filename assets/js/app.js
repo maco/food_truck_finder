@@ -2,30 +2,61 @@
 // to get started and then uncomment the line below.
 // import "./user_socket.js"
 
-// You can include dependencies in two ways.
-//
-// The simplest option is to put them in assets/vendor and
-// import them using relative paths:
-//
-//     import "../vendor/some-package.js"
-//
-// Alternatively, you can `npm install some-package --prefix assets` and import
-// them using a path starting with the package name:
-//
-//     import "some-package"
-//
-
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
+import L from "../vendor/node_modules/leaflet";
+
+const Map = {
+  mounted() {
+      const map = L.map("map").setView([37.805885350100986, -122.41594524663745], 14);
+      L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+          {
+              attribution:
+                  "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+              maxZoom: 16,
+          }
+      ).addTo(map);
+
+      let myRenderer = L.canvas({ padding: 0.5 });
+      this.handleEvent("add_facility", (facility) => {
+        let marker = L.circleMarker(
+          [facility.latitude, facility.longitude],
+          {
+              renderer: myRenderer,
+              radius: 1,
+              width: 2,
+              color: "#ef4444",
+              fillColor: "#ef4444",
+              fillOpacity: 0.8,
+              fill: true,
+          }
+        );
+        marker.addTo(map);
+        marker.bindPopup(`<h1>${facility.name}</h1><p><b>Address:</b> ${facility.address}<br/><b>Type:</b> ${facility.type}</p>`);
+    });
+
+    this.handleEvent("recenter", ({lon: lon, lat: lat}) => {
+      map.setView([lat, lon], 14)
+    });
+  },
+};
+
+const Hooks = {
+  Map,
+};
+
+
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: {_csrf_token: csrfToken},
+  hooks: Hooks
 })
 
 // Show progress bar on live navigation and form submits
@@ -41,4 +72,6 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+
 

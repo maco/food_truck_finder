@@ -2,4 +2,5 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@import "../vendor/node_modules/leaflet/dist/leaflet.css"
 /* This file is for your main application CSS */
