@@ -49,6 +49,7 @@ defmodule FoodTruckFinderWeb.MapLive do
     {:noreply, socket}
   end
 
+  @spec put_on_map(float(), float(), Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   defp put_on_map(lon, lat, socket) do
     facilities = Map.get_facilities(lon, lat)
 
