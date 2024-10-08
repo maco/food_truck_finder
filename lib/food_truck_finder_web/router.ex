@@ -1,5 +1,6 @@
 defmodule FoodTruckFinderWeb.Router do
-  use FoodTruckFinderWeb, :router
+  use Phoenix.Router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -14,10 +15,15 @@ defmodule FoodTruckFinderWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # scope "/", FoodTruckFinderWeb do
+  #   pipe_through :browser
+
+  #   get "/", PageController, :home
+  # end
+
   scope "/", FoodTruckFinderWeb do
     pipe_through :browser
-
-    get "/", PageController, :home
+    live "/", MapLive
   end
 
   # Other scopes may use custom stacks.
@@ -38,7 +44,6 @@ defmodule FoodTruckFinderWeb.Router do
       pipe_through :browser
 
       live_dashboard "/dashboard", metrics: FoodTruckFinderWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
 end
